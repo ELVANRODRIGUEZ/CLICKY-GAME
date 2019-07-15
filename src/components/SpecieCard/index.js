@@ -1,16 +1,20 @@
 import React from "react";
 import "./style.css";
 
-function FriendCard(props) {
+function SpecieCard(props) {
   // console.log(props);
-  return (props.selected !== props.id ?
-      <div className="img-thumbnail" id={props.id} onClick={props.shuffle()}>
-        <img alt={props.name} src={props.backImage} />
-      </div> :
-      <div className="img-thumbnail" id={props.id} onClick={props.shuffle()}>
-      <img alt={props.name} src={props.image} />
-    </div> 
+
+  return (
+    <div className="img-thumbnail">
+      <img
+        alt={props.name}
+        src={props.image}
+        id={props.id}
+        pair={props.pair}
+        onClick={props.flip()}
+      />
+    </div>
   );
 }
 
-export default FriendCard;
+export default SpecieCard;

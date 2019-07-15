@@ -10,82 +10,153 @@ class App extends React.Component {
     super(props);
     this.state = {
       animalsList: animals,
-      cardSelected: "6"
+      cardSelected: [],
+      intents: 0
     };
-    // this.flip = this.flip.bind(this);
+    this.flip = this.flip.bind(this);
     this.shuffle = this.shuffle.bind(this);
   }
 
-  // flip(target) {
-  //   // console.log(`This is the Id to be excluded: ${target.target.id}`);
-  //   // console.log(`This is the text of the card to be excluded: ${target.target.textContent}`);
+  selections = [];
+  pairs = [];
+  pairsDiscovered = [];
+  shuffledArr = [];
+  dummyArr = animals;
 
-  //   const newAnimalsList = this.state.animalsList.filter(item => {
-  //     return item.id.toString() !== target.target.id;
-  //   });
+  flip(target) {
+    // console.log(`This is the Id to be flipped: ${target.target.id}`);
+    // console.log(`This is the text of the card to be excluded: ${target.target.textContent}`);
+    // console.log(target.target.attributes.getNamedItem("pair").value);
 
-  //   this.setState({
-  //     animalsList: newAnimalsList
-  //   });
+    if (this.state.intents === 0) {
+      this.selections.push(target.target.id);
 
-  //   // console.log(newAnimalsList);
-  // }
+      this.pairs.push({
+        id:target.target.id,
+        pair:target.target.attributes.getNamedItem("pair").value
+      });
 
+      this.setState({ cardSelected: this.selections }, () => this.render());
+      this.setState({ intents: this.state.intents + 1 }, () => this.test());
+    } else if (this.state.intents === 1) {
+      this.selections.push(target.target.id);
+
+      if (
+        this.pairs[this.pairs.length - 1].pair ===
+        target.target.attributes.getNamedItem("pair").value
+      ) {
+        this.pairs.push({
+        id:target.target.id,
+        pair:target.target.attributes.getNamedItem("pair").value
+        });
+        this.pairs.forEach(item => {
+          this.pairsDiscovered.push(item.id);
+        });
+
+        // console.log(this.pairs);
+        console.log(this.pairsDiscovered);
+
+        this.pairsDiscovered.forEach((id) => {
+          // console.log(id);
+          // console.log(animals.findIndex(item => item.id === 3));
+          setTimeout(() => {
+            let idToSlpice = id;
+            let indexToSlpice;
+            if (animals.length === 0) {
+              
+              indexToSlpice = this.shuffledArr.findIndex(item => item.id === parseInt(idToSlpice));
+              this.shuffledArr.splice(indexToSlpice, 1);
+              this.setState({ animalsList: this.shuffledArr});
+            } else {
+              
+              indexToSlpice = animals.findIndex(item => item.id === parseInt(idToSlpice));
+              animals.splice(indexToSlpice, 1);
+              this.setState({ animalsList: animals});
+            }
+            this.pairsDiscovered = [];
+            this.pairs = [];
+          }, 1500);
+
+        });
+
+        // console.log(this.pairs);
+
+      } else {
+        this.pairs.pop();
+      }
+
+      this.setState({ cardSelected: this.selections }, () => this.render());
+      this.setState({ intents: 0 }, () => this.test());
+      this.selections = [];
+    }
+  }
+  
   shuffle() {
-
     // console.log(this.state.animalsList);
-    let shuffledArr = [];
-    let dummyArr = this.state.animalsList;
 
-    let numOfAnimals = dummyArr.length;
-    
+    let numOfAnimals = this.dummyArr.length;
+
     // console.log(`  Dummy array length: ${dummyArr.length}`);
     for (let i = 0; i < numOfAnimals; i++) {
-
-      let random = Math.floor(Math.random() * dummyArr.length);
+      let random = Math.floor(Math.random() * this.dummyArr.length);
       // console.log(`============================`);
       // console.log(`Random number: ${random}.`);
-      
-      let splicedItem =  dummyArr.splice(random, 1);
+
+      let splicedItem = this.dummyArr.splice(random, 1);
       // console.log(`  Dummy array length: ${dummyArr.length}`);
 
-      shuffledArr.push(splicedItem[0]);
-
+      this.shuffledArr.push(splicedItem[0]);
     }
 
-    this.setState({animalsList: shuffledArr},
-      () =>  this.test()
-    );
-    // console.log(dummyArr);
-    // console.log(shuffledArr);
-
-    // return this.test();
-
+    this.setState({ animalsList: this.shuffledArr }, () => this.test());
+    console.log(this.shuffledArr);
+    console.log(animals);
   }
 
   test() {
-    console.log(this.state.animalsList);
-
+    // console.log(this.state.animalsList);
+    // console.log(this.state.intents);
   }
 
   render() {
     return (
       <div>
-        <Header />
+        <Header click={() => this.shuffle}/>
         <Wrapper>
           {this.state.animalsList.map(item => {
-            return (
-              <SpecieCard
-                selected={this.state.cardSelected}
-                key={item.id.toString()}
-                id={item.id.toString()}
-                name={item.name}
-                image={item.image}
-                backImage={item.backImage}
-                // flip={() => this.flip}
-                shuffle={() => this.shuffle}
-              />
-            );
+            // console.log(item.id);
+
+            if (
+              this.state.cardSelected[0] === item.id.toString() ||
+              this.state.cardSelected[1] === item.id.toString()
+            ) {
+              // console.log(`Selection in array: ${this.state.cardSelected[0]}`);
+              // console.log(`Selection in array: ${this.state.cardSelected[1]}`);
+              // console.log(`Item id: ${item.id}`);
+              return (
+                <SpecieCard
+                  key={item.id.toString()}
+                  id={item.id.toString()}
+                  pair={item.pair}
+                  name={item.name}
+                  image={item.image}
+                  flip={() => this.flip}
+                  // shuffle={() => this.shuffle}
+                />
+              );
+            } else {
+              return (
+                <SpecieCard
+                  key={item.id.toString()}
+                  id={item.id.toString()}
+                  pair={item.pair}
+                  name={item.name}
+                  image={item.backImage}
+                  flip={() => this.flip}
+                  // shuffle={() => this.shuffle}
+                />
+              );
+            }
           })}
         </Wrapper>
       </div>

@@ -122,7 +122,11 @@ class App extends React.Component {
   }
 
   shuffle() {
-    this.setState({ animalsList: shuffle() });
+    this.dummyAnimalArray = shuffle();
+  this.usedAnimalArray = this.dummyAnimalArray.map(item => {
+    return item;
+  })
+    this.setState({ animalsList: this.usedAnimalArray });
   }
 
   render() {

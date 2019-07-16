@@ -36,7 +36,8 @@ class App extends React.Component {
     this.state = {
       animalsList: this.usedAnimalArray,
       cardSelected: [],
-      intents: 0
+      intents: 0,
+      onTimeOut: false
     };
     this.flip = this.flip.bind(this);
     this.shuffle = this.shuffle.bind(this);
@@ -48,22 +49,23 @@ class App extends React.Component {
   dummyAnimalArray = shuffle();
   usedAnimalArray = this.dummyAnimalArray.map(item => {
     return item;
-  })
-  
+  });
+
   // componentDidMount() {
 
   //   this.setState({
   //     animalsList: this.usedAnimalArray
   //   });
   // }
-  
+
   flip(target) {
     // console.log(`This is the Id to be flipped: ${target.target.id}`);
     // console.log(`This is the text of the card to be excluded: ${target.target.textContent}`);
     // console.log(target.target.attributes.getNamedItem("pair").value);
     let cardId = target.target.id;
     let cardPair = target.target.attributes.getNamedItem("pair").value;
-    if (target.target) {
+
+    if (target.target && this.state.onTimeOut === false) {
       if (this.state.intents === 0) {
         this.selections.push(cardId);
 
@@ -74,12 +76,14 @@ class App extends React.Component {
 
         this.setState({ cardSelected: this.selections });
         this.setState({ intents: this.state.intents + 1 });
-      } else if (this.state.intents === 1) {
+      } else if (this.state.intents === 1 && this.state.onTimeOut === false) {
         this.selections.push(cardId);
 
         if (!this.pairs[this.pairs.length - 1]) {
           return;
-        } else if (this.pairs[this.pairs.length - 1].pair === cardPair) {
+        } else if (this.pairs[this.pairs.length - 1].pair === cardPair && this.state.onTimeOut === false) {
+          this.setState({ onTimeOut: true });
+          setTimeout(() => {
           this.pairs.push({
             id: cardId,
             pair: cardPair
@@ -94,7 +98,6 @@ class App extends React.Component {
           this.pairsDiscovered.forEach(id => {
             // console.log(id);
             // console.log(animals.findIndex(item => item.id === 3));
-            setTimeout(() => {
               let idToSlpice = id;
               let indexToSlpice;
               indexToSlpice = this.usedAnimalArray.findIndex(
@@ -104,11 +107,12 @@ class App extends React.Component {
               this.setState({ animalsList: this.usedAnimalArray });
               this.pairsDiscovered = [];
               this.pairs = [];
-            }, 2500);
-          });
-
+              this.setState({ onTimeOut: false });
+            });
+            
+          }, 2500);
           // console.log(this.pairs);
-        } else {
+        } else if (this.state.onTimeOut === false) {
           this.pairs.pop();
         }
 
@@ -116,16 +120,17 @@ class App extends React.Component {
         this.setState({ intents: 0 });
         this.selections = [];
       }
-    } else {
+    } 
+    else {
       return;
     }
   }
 
   shuffle() {
     this.dummyAnimalArray = shuffle();
-  this.usedAnimalArray = this.dummyAnimalArray.map(item => {
-    return item;
-  })
+    this.usedAnimalArray = this.dummyAnimalArray.map(item => {
+      return item;
+    });
     this.setState({ animalsList: this.usedAnimalArray });
   }
 
@@ -136,7 +141,6 @@ class App extends React.Component {
         {console.log("Rerender")}
         <Wrapper>
           {this.state.animalsList.map(item => {
-            
             if (
               this.state.cardSelected[0] === item.id.toString() ||
               this.state.cardSelected[1] === item.id.toString()
@@ -152,7 +156,7 @@ class App extends React.Component {
                   name={item.name}
                   image={item.image}
                   flip={() => this.flip}
-                // shuffle={() => this.shuffle}
+                  // shuffle={() => this.shuffle}
                 />
               );
             } else {
@@ -164,7 +168,7 @@ class App extends React.Component {
                   name={item.name}
                   image={item.backImage}
                   flip={() => this.flip}
-                // shuffle={() => this.shuffle}
+                  // shuffle={() => this.shuffle}
                 />
               );
             }

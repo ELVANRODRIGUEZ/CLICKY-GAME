@@ -21,88 +21,102 @@ class App extends React.Component {
   pairs = [];
   pairsDiscovered = [];
   shuffledArr = [];
-  dummyArr = animals;
+  animalArrForShuff = animals.map(item => {
+    return item;
+  });
+  usedAnimalArray = animals.map(item => {
+    return item;
+  });
 
   flip(target) {
     // console.log(`This is the Id to be flipped: ${target.target.id}`);
     // console.log(`This is the text of the card to be excluded: ${target.target.textContent}`);
     // console.log(target.target.attributes.getNamedItem("pair").value);
+    let cardId = target.target.id;
+    let cardPair = target.target.attributes.getNamedItem("pair").value;
+    if (
+      target.target
+    ) {
+      if (this.state.intents === 0) {
+        this.selections.push(cardId);
 
-    if (this.state.intents === 0) {
-      this.selections.push(target.target.id);
-
-      this.pairs.push({
-        id:target.target.id,
-        pair:target.target.attributes.getNamedItem("pair").value
-      });
-
-      this.setState({ cardSelected: this.selections }, () => this.render());
-      this.setState({ intents: this.state.intents + 1 }, () => this.test());
-    } else if (this.state.intents === 1) {
-      this.selections.push(target.target.id);
-
-      if (
-        this.pairs[this.pairs.length - 1].pair ===
-        target.target.attributes.getNamedItem("pair").value
-      ) {
         this.pairs.push({
-        id:target.target.id,
-        pair:target.target.attributes.getNamedItem("pair").value
-        });
-        this.pairs.forEach(item => {
-          this.pairsDiscovered.push(item.id);
+          id: cardId,
+          pair: cardPair
         });
 
-        // console.log(this.pairs);
-        console.log(this.pairsDiscovered);
+        this.setState({ cardSelected: this.selections }, () => this.render());
+        this.setState({ intents: this.state.intents + 1 }, () => this.test());
+      } else if (this.state.intents === 1) {
+        this.selections.push(cardId);
 
-        this.pairsDiscovered.forEach((id) => {
-          // console.log(id);
-          // console.log(animals.findIndex(item => item.id === 3));
-          setTimeout(() => {
-            let idToSlpice = id;
-            let indexToSlpice;
-            if (animals.length === 0) {
-              
-              indexToSlpice = this.shuffledArr.findIndex(item => item.id === parseInt(idToSlpice));
-              this.shuffledArr.splice(indexToSlpice, 1);
-              this.setState({ animalsList: this.shuffledArr});
-            } else {
-              
-              indexToSlpice = animals.findIndex(item => item.id === parseInt(idToSlpice));
-              animals.splice(indexToSlpice, 1);
-              this.setState({ animalsList: animals});
-            }
-            this.pairsDiscovered = [];
-            this.pairs = [];
-          }, 1500);
+        if(!this.pairs[this.pairs.length - 1]) {
+          return;
+        } else if (
+          this.pairs[this.pairs.length - 1].pair ===
+          cardPair
+        ) {
+          this.pairs.push({
+            id: cardId,
+            pair: cardPair
+          });
+          this.pairs.forEach(item => {
+            this.pairsDiscovered.push(item.id);
+          });
 
-        });
+          // console.log(this.pairs);
+          console.log(this.pairsDiscovered);
 
-        // console.log(this.pairs);
+          this.pairsDiscovered.forEach(id => {
+            // console.log(id);
+            // console.log(animals.findIndex(item => item.id === 3));
+            setTimeout(() => {
+              let idToSlpice = id;
+              let indexToSlpice;
+              if (this.shuffledArr.length > 0) {
+                indexToSlpice = this.shuffledArr.findIndex(
+                  item => item.id === parseInt(idToSlpice)
+                );
+                this.shuffledArr.splice(indexToSlpice, 1);
+                this.setState({ animalsList: this.shuffledArr });
+              } else {
+                indexToSlpice = this.usedAnimalArray.findIndex(
+                  item => item.id === parseInt(idToSlpice)
+                );
+                this.usedAnimalArray.splice(indexToSlpice, 1);
+                this.setState({ animalsList: this.usedAnimalArray });
+              }
+              this.pairsDiscovered = [];
+              this.pairs = [];
+            }, 2500);
+          });
 
-      } else {
-        this.pairs.pop();
+          // console.log(this.pairs);
+        } else {
+          this.pairs.pop();
+        }
+
+        this.setState({ cardSelected: this.selections }, () => this.render());
+        this.setState({ intents: 0 }, () => this.test());
+        this.selections = [];
       }
-
-      this.setState({ cardSelected: this.selections }, () => this.render());
-      this.setState({ intents: 0 }, () => this.test());
-      this.selections = [];
+    } else {
+      return
     }
   }
-  
+
   shuffle() {
     // console.log(this.state.animalsList);
 
-    let numOfAnimals = this.dummyArr.length;
+    let numOfAnimals = this.animalArrForShuff.length;
 
     // console.log(`  Dummy array length: ${dummyArr.length}`);
     for (let i = 0; i < numOfAnimals; i++) {
-      let random = Math.floor(Math.random() * this.dummyArr.length);
+      let random = Math.floor(Math.random() * this.animalArrForShuff.length);
       // console.log(`============================`);
       // console.log(`Random number: ${random}.`);
 
-      let splicedItem = this.dummyArr.splice(random, 1);
+      let splicedItem = this.animalArrForShuff.splice(random, 1);
       // console.log(`  Dummy array length: ${dummyArr.length}`);
 
       this.shuffledArr.push(splicedItem[0]);
@@ -121,7 +135,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Header click={() => this.shuffle}/>
+        <Header click={() => this.shuffle} />
         <Wrapper>
           {this.state.animalsList.map(item => {
             // console.log(item.id);

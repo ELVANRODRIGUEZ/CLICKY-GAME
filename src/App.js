@@ -37,7 +37,8 @@ class App extends React.Component {
       animalsList: this.usedAnimalArray,
       cardSelected: [],
       intents: 0,
-      onTimeOut: false
+      onTimeOut: false,
+      title: "SECIES MEMORY GAME"
     };
     this.flip = this.flip.bind(this);
     this.shuffle = this.shuffle.bind(this);
@@ -81,23 +82,26 @@ class App extends React.Component {
 
         if (!this.pairs[this.pairs.length - 1]) {
           return;
-        } else if (this.pairs[this.pairs.length - 1].pair === cardPair && this.state.onTimeOut === false) {
+        } else if (
+          this.pairs[this.pairs.length - 1].pair === cardPair &&
+          this.state.onTimeOut === false
+        ) {
           this.setState({ onTimeOut: true });
           setTimeout(() => {
-          this.pairs.push({
-            id: cardId,
-            pair: cardPair
-          });
-          this.pairs.forEach(item => {
-            this.pairsDiscovered.push(item.id);
-          });
+            this.pairs.push({
+              id: cardId,
+              pair: cardPair
+            });
+            this.pairs.forEach(item => {
+              this.pairsDiscovered.push(item.id);
+            });
 
-          // console.log(this.pairs);
-          console.log(this.pairsDiscovered);
+            // console.log(this.pairs);
+            console.log(this.pairsDiscovered);
 
-          this.pairsDiscovered.forEach(id => {
-            // console.log(id);
-            // console.log(animals.findIndex(item => item.id === 3));
+            this.pairsDiscovered.forEach(id => {
+              // console.log(id);
+              // console.log(animals.findIndex(item => item.id === 3));
               let idToSlpice = id;
               let indexToSlpice;
               indexToSlpice = this.usedAnimalArray.findIndex(
@@ -107,9 +111,9 @@ class App extends React.Component {
               this.setState({ animalsList: this.usedAnimalArray });
               this.pairsDiscovered = [];
               this.pairs = [];
+              if (this.usedAnimalArray.length===0) this.setState({title:"PRESS TO PLAY AGAIN"});
               this.setState({ onTimeOut: false });
             });
-            
           }, 2500);
           // console.log(this.pairs);
         } else if (this.state.onTimeOut === false) {
@@ -120,8 +124,7 @@ class App extends React.Component {
         this.setState({ intents: 0 });
         this.selections = [];
       }
-    } 
-    else {
+    } else {
       return;
     }
   }
@@ -131,48 +134,58 @@ class App extends React.Component {
     this.usedAnimalArray = this.dummyAnimalArray.map(item => {
       return item;
     });
-    this.setState({ animalsList: this.usedAnimalArray });
+    this.setState({ animalsList: this.usedAnimalArray,  cardSelected: [], title: "SECIES MEMORY GAME"});
   }
 
   render() {
     return (
       <div>
-        <Header click={() => this.shuffle} />
+        <Header click={() => this.shuffle} header={this.state.title} />
         {console.log("Rerender")}
         <Wrapper>
-          {this.state.animalsList.map(item => {
-            if (
-              this.state.cardSelected[0] === item.id.toString() ||
-              this.state.cardSelected[1] === item.id.toString()
-            ) {
-              // console.log(`Selection in array: ${this.state.cardSelected[0]}`);
-              // console.log(`Selection in array: ${this.state.cardSelected[1]}`);
-              // console.log(`Item id: ${item.id}`);
-              return (
-                <SpecieCard
-                  key={item.id.toString()}
-                  id={item.id.toString()}
-                  pair={item.pair}
-                  name={item.name}
-                  image={item.image}
-                  flip={() => this.flip}
-                  // shuffle={() => this.shuffle}
-                />
-              );
-            } else {
-              return (
-                <SpecieCard
-                  key={item.id.toString()}
-                  id={item.id.toString()}
-                  pair={item.pair}
-                  name={item.name}
-                  image={item.backImage}
-                  flip={() => this.flip}
-                  // shuffle={() => this.shuffle}
-                />
-              );
-            }
-          })}
+          <div className="row">
+            <div className="col-md-1" />
+            <div className="col-md-10">
+              <div className="row">
+
+              {this.state.animalsList.map(item => {
+                if (
+                  this.state.cardSelected[0] === item.id.toString() ||
+                  this.state.cardSelected[1] === item.id.toString()
+                ) {
+                  // console.log(`Selection in array: ${this.state.cardSelected[0]}`);
+                  // console.log(`Selection in array: ${this.state.cardSelected[1]}`);
+                  // console.log(`Item id: ${item.id}`);
+                  return (
+                    <SpecieCard
+                      key={item.id.toString()}
+                      id={item.id.toString()}
+                      pair={item.pair}
+                      name={item.name}
+                      image={item.image}
+                      flip={() => this.flip}
+                      // shuffle={() => this.shuffle}
+                    />
+                  );
+                } else {
+                  return (
+                    <SpecieCard
+                      key={item.id.toString()}
+                      id={item.id.toString()}
+                      pair={item.pair}
+                      name={item.name}
+                      image={item.backImage}
+                      flip={() => this.flip}
+                      // shuffle={() => this.shuffle}
+                    />
+                  );
+                }
+              })}
+              </div>
+
+            </div>
+            <div className="col-md-1" />
+          </div>
         </Wrapper>
       </div>
     );

@@ -45,3 +45,11 @@
 .card > .remove:hover {
   color: #d50000;
 }
+
+.col-sm-3 {
+  display: inline-block;
+}
+
+img {
+  width: 100%;
+}
